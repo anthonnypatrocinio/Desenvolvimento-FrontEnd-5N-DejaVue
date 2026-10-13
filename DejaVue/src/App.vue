@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import CabecalhoMenu from "./components/CabecalhoMenu.vue";
 </script>
 
 <template>
-  <HelloWorld />
+  <CabecalhoMenu />
+  <main class="conteudo">
+    <RouterView />
+  </main>
 </template>
+
+<style scoped>
+.conteudo {
+  flex-grow: 1;
+}
+</style>
