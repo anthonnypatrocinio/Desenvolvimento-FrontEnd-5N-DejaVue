@@ -1,4 +1,4 @@
-<script setup lang="ts">
+''<script setup lang="ts">
 import { ref, watch } from 'vue'
 import { buscarProjetoComTarefas, type ProjetoComTarefas } from '../api'
 import TarefaCard from '../components/TarefaCard.vue'
