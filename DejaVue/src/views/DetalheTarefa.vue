@@ -71,6 +71,9 @@ watch(() => props.id, carregar, { immediate: true });
       <h1>{{ tarefa.titulo }}</h1>
 
       <dl class="campos">
+        <dt>Id</dt>
+        <dd>{{ tarefa.id }}</dd>
+
         <dt>Descrição</dt>
         <dd>{{ tarefa.descricao }}</dd>
 
