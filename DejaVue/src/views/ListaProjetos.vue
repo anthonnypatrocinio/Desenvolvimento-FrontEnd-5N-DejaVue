@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { buscarProjetos } from '../api'
+import { listarProjetos } from '../api'
 import type { Projeto } from '../tipos'
 
 const projetos = ref<Projeto[]>([])
@@ -8,7 +8,7 @@ const carregando = ref(true)
 
 onMounted(async () => {
   try {
-    projetos.value = await buscarProjetos()
+    projetos.value = await listarProjetos()
   } catch (erro) {
     console.error('Erro ao buscar projetos:', erro)
   } finally {
