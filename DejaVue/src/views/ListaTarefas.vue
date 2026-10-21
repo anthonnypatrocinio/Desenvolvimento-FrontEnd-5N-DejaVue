@@ -14,6 +14,7 @@ onMounted(async () => {
 <template>
   <section>
     <h1>Tarefas</h1>
+    <RouterLink to="/tarefas/nova">Nova tarefa</RouterLink>
     <div class="lista">
       <TarefaCard v-for="t in tarefas" :key="t.id" :tarefa="t" />
     </div>
