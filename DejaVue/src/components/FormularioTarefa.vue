@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { listarProjetos } from '../api'
 import { opcoesPrioridade, opcoesStatus, rotuloPrioridade, rotuloStatus } from '../rotulos'
 import type { NovaTarefa, Projeto } from '../tipos'
@@ -48,6 +48,8 @@ onMounted(async () => {
 type Erros = Partial<Record<keyof NovaTarefa, string>>
 const erros = ref<Erros>({})
 let tentouEnviar = false
+const formulario = ref<HTMLFormElement | null>(null)
+const quantidadeErros = ref(0)
 
 function validar(): boolean {
   const e: Erros = {}
@@ -56,17 +58,22 @@ function validar(): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dados.prazo)) e.prazo = 'Informe o prazo.'
   if (!dados.projetoId) e.projetoId = 'Escolha um projeto.'
   erros.value = e
-  return Object.keys(e).length === 0
+  quantidadeErros.value = Object.keys(e).length
+  return quantidadeErros.value === 0
 }
 
 watch(dados, () => {
   if (tentouEnviar) validar()
 })
 
-function aoEnviar() {
+async function aoEnviar() {
   if (props.enviando) return
   tentouEnviar = true
-  if (!validar()) return
+  if (!validar()) {
+    await nextTick()
+    formulario.value?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    return
+  }
 
   emit('enviar', {
     ...dados,
@@ -77,11 +84,24 @@ function aoEnviar() {
 </script>
 
 <template>
-  <form class="formulario" novalidate @submit.prevent="aoEnviar">
+  <form ref="formulario" class="formulario" novalidate @submit.prevent="aoEnviar">
+    <p v-if="quantidadeErros > 0" class="resumo" role="alert">
+      ⚠️ Corrija {{ quantidadeErros }} {{ quantidadeErros === 1 ? 'campo' : 'campos' }} antes de salvar.
+    </p>
+
+    <p class="legenda"><span aria-hidden="true">*</span> campo obrigatório</p>
+
     <div class="campo">
-      <label for="titulo">Título</label>
-      <input id="titulo" v-model="dados.titulo" type="text" />
-      <p v-if="erros.titulo" class="erro">{{ erros.titulo }}</p>
+      <label for="titulo">Título <span aria-hidden="true">*</span></label>
+      <input
+        id="titulo"
+        v-model="dados.titulo"
+        type="text"
+        aria-required="true"
+        :aria-invalid="erros.titulo ? 'true' : undefined"
+        :aria-describedby="erros.titulo ? 'erro-titulo' : undefined"
+      />
+      <p v-if="erros.titulo" id="erro-titulo" class="erro">Erro: {{ erros.titulo }}</p>
     </div>
 
     <div class="campo">
@@ -104,23 +124,43 @@ function aoEnviar() {
     </div>
 
     <div class="campo">
-      <label for="responsavel">Responsável</label>
-      <input id="responsavel" v-model="dados.responsavel" type="text" />
-      <p v-if="erros.responsavel" class="erro">{{ erros.responsavel }}</p>
+      <label for="responsavel">Responsável <span aria-hidden="true">*</span></label>
+      <input
+        id="responsavel"
+        v-model="dados.responsavel"
+        type="text"
+        aria-required="true"
+        :aria-invalid="erros.responsavel ? 'true' : undefined"
+        :aria-describedby="erros.responsavel ? 'erro-responsavel' : undefined"
+      />
+      <p v-if="erros.responsavel" id="erro-responsavel" class="erro">Erro: {{ erros.responsavel }}</p>
     </div>
 
     <div class="campo">
-      <label for="prazo">Prazo</label>
-      <input id="prazo" v-model="dados.prazo" type="date" />
-      <p v-if="erros.prazo" class="erro">{{ erros.prazo }}</p>
+      <label for="prazo">Prazo <span aria-hidden="true">*</span></label>
+      <input
+        id="prazo"
+        v-model="dados.prazo"
+        type="date"
+        aria-required="true"
+        :aria-invalid="erros.prazo ? 'true' : undefined"
+        :aria-describedby="erros.prazo ? 'erro-prazo' : undefined"
+      />
+      <p v-if="erros.prazo" id="erro-prazo" class="erro">Erro: {{ erros.prazo }}</p>
     </div>
 
     <div class="campo">
-      <label for="projeto">Projeto</label>
-      <select id="projeto" v-model="dados.projetoId">
+      <label for="projeto">Projeto <span aria-hidden="true">*</span></label>
+      <select
+        id="projeto"
+        v-model="dados.projetoId"
+        aria-required="true"
+        :aria-invalid="erros.projetoId ? 'true' : undefined"
+        :aria-describedby="erros.projetoId ? 'erro-projeto' : undefined"
+      >
         <option v-for="p in projetos" :key="p.id" :value="p.id">{{ p.nome }}</option>
       </select>
-      <p v-if="erros.projetoId" class="erro">{{ erros.projetoId }}</p>
+      <p v-if="erros.projetoId" id="erro-projeto" class="erro">Erro: {{ erros.projetoId }}</p>
       <p v-if="erroProjetos" role="alert">{{ erroProjetos }}</p>
     </div>
 
@@ -146,174 +186,39 @@ button:disabled {
 .erro {
   margin: 0;
   color: #b91c1c;
+  font-weight: 600;
+}
+.resumo {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #b91c1c;
+  border-radius: 6px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+.legenda {
+  margin: 0;
+  font-size: 0.85rem;
+}
+[aria-invalid='true'] {
+  border: 2px solid #b91c1c;
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 3px solid #6d28d9;
+  outline-offset: 2px;
+}
+button {
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  font: inherit;
 }
 input,
 textarea,
 select {
   padding: 0.4rem 0.5rem;
   font: inherit;
-}
-</style>
-
-const projetos = ref<Projeto[]>([]);
-const tocados = reactive({
-  titulo: false,
-  projetoId: false,
-});
-
-const erros = computed(() => ({
-  titulo: !dados.titulo.trim() ? "O título é obrigatório." : "",
-  projetoId: !dados.projetoId ? "Selecione um projeto." : "",
-}));
-
-const formularioValido = computed(() => {
-  return !erros.value.titulo && !erros.value.projetoId;
-});
-
-const tentarSubmeter = ref(false);
-
-onMounted(async () => {
-  try {
-    projetos.value = await listarProjetos();
-  } catch (e) {
-    console.error("Erro ao carregar projetos", e);
-  }
-});
-
-watch(
-  () => props.inicial,
-  (novo) => {
-    if (novo) {
-      Object.assign(dados, novo);
-    }
-  }
-);
-
-function submeter() {
-  tentarSubmeter.value = true;
-  tocados.titulo = true;
-  tocados.projetoId = true;
-
-  if (!formularioValido.value || props.enviando) {
-    return;
-  }
-
-  emit("enviar", { ...dados });
-}
-</script>
-
-<template>
-  <form @submit.prevent="submeter" class="formulario-tarefa" novalidate>
-    <div class="campo">
-      <label for="campo-titulo">Título *</label>
-      <input
-        id="campo-titulo"
-        v-model="dados.titulo"
-        type="text"
-        @blur="tocados.titulo = true"
-      />
-      <span
-        v-if="erros.titulo && (tocados.titulo || tentarSubmeter)"
-        class="mensagem-erro"
-      >
-        {{ erros.titulo }}
-      </span>
-    </div>
-
-    <div class="campo">
-      <label for="campo-projeto">Projeto *</label>
-      <select
-        id="campo-projeto"
-        v-model="dados.projetoId"
-        @blur="tocados.projetoId = true"
-      >
-        <option value="" disabled>Selecione um projeto...</option>
-        <option v-for="proj in projetos" :key="proj.id" :value="proj.id">
-          {{ proj.nome }}
-        </option>
-      </select>
-      <span
-        v-if="erros.projetoId && (tocados.projetoId || tentarSubmeter)"
-        class="mensagem-erro"
-      >
-        {{ erros.projetoId }}
-      </span>
-    </div>
-
-    <div class="campo">
-      <label for="campo-descricao">Descrição</label>
-      <textarea id="campo-descricao" v-model="dados.descricao" rows="3"></textarea>
-    </div>
-
-    <div class="campo-grupo">
-      <div class="campo">
-        <label for="campo-status">Status</label>
-        <select id="campo-status" v-model="dados.status">
-          <option v-for="st in opcoesStatus" :key="st" :value="st">
-            {{ rotuloStatus[st] }}
-          </option>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label for="campo-prioridade">Prioridade</label>
-        <select id="campo-prioridade" v-model="dados.prioridade">
-          <option v-for="pr in opcoesPrioridade" :key="pr" :value="pr">
-            {{ rotuloPrioridade[pr] }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div class="campo-grupo">
-      <div class="campo">
-        <label for="campo-responsavel">Responsável</label>
-        <input id="campo-responsavel" v-model="dados.responsavel" type="text" />
-      </div>
-
-      <div class="campo">
-        <label for="campo-prazo">Prazo</label>
-        <input id="campo-prazo" v-model="dados.prazo" type="date" />
-      </div>
-    </div>
-
-    <div class="acoes">
-      <button
-        type="submit"
-        class="botao-salvar"
-        :disabled="props.enviando || (tentarSubmeter && !formularioValido)"
-      >
-        {{ props.enviando ? "A guardar..." : "Salvar Tarefa" }}
-      </button>
-    </div>
-  </form>
-</template>
-
-<style scoped>
-.formulario-tarefa {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 600px;
-}
-.campo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-.campo-grupo {
-  display: flex;
-  gap: 1rem;
-}
-.campo-grupo .campo {
-  flex: 1;
-}
-.mensagem-erro {
-  color: #d9534f;
-  font-size: 0.85rem;
-}
-.botao-salvar:disabled {
-  background-color: #999;
-  cursor: not-allowed;
 }
 </style>
