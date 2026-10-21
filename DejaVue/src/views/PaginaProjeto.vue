@@ -52,6 +52,7 @@ watch(() => props.id, carregar, { immediate: true })
       </p>
 
       <h2>Tarefas ({{ projeto.tarefas.length }})</h2>
+      <RouterLink :to="{ path: '/tarefas/nova', query: { projetoId: projeto.id } }">  Nova tarefa </RouterLink>
       <p v-if="projeto.tarefas.length === 0">Este projeto ainda não tem tarefas.</p>
       <div v-else class="lista">
         <TarefaCard v-for="t in projeto.tarefas" :key="t.id" :tarefa="t" />

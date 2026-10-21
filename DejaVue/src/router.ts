@@ -4,6 +4,7 @@ import DetalheTarefa from './views/DetalheTarefa.vue'
 import ListaProjetos from './views/ListaProjetos.vue'
 import PaginaProjeto from './views/PaginaProjeto.vue'
 import NaoEncontrado from './views/NaoEncontrado.vue'
+import NovaTarefa from './views/NovaTarefa.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -13,5 +14,7 @@ export default createRouter({
     { path: '/projetos', component: ListaProjetos },
     { path: '/projetos/:id', component: PaginaProjeto, props: true },
     { path: '/:pathMatch(.*)*', component: NaoEncontrado },
+    { path: '/tarefas/nova', component: NovaTarefa }, 
+    { path: '/tarefas/:id', component: DetalheTarefa, props: true }
   ],
 })
