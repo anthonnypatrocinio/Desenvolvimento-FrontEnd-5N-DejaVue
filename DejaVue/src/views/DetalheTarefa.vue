@@ -69,7 +69,7 @@ watch(() => props.id, carregar, { immediate: true });
 
     <article v-else-if="tarefa">
       <h1>{{ tarefa.titulo }}</h1>
-
+        <RouterLink :to="`/tarefas/${tarefa.id}/editar`">Editar</RouterLink>
       <dl class="campos">
         <dt>Id</dt>
         <dd>{{ tarefa.id }}</dd>
