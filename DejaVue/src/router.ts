@@ -6,6 +6,9 @@ import PaginaProjeto from './views/PaginaProjeto.vue'
 import NaoEncontrado from './views/NaoEncontrado.vue'
 import NovaTarefa from './views/NovaTarefa.vue'
 import EditarTarefa from './views/EditarTarefa.vue'
+import NovoProjeto from './views/NovoProjeto.vue'
+import EditarProjeto from './views/EditarProjeto.vue'
+
 
 export default createRouter({
   history: createWebHistory(),
@@ -19,5 +22,9 @@ export default createRouter({
     { path: '/tarefas/:id', component: DetalheTarefa, props: true },
     { path: '/tarefas/:id', component: DetalheTarefa, props: true }, 
     { path: '/tarefas/:id/editar', component: EditarTarefa, props: true },
+    { path: '/projetos', component: ListaProjetos },
+    { path: '/projetos/novo', component: NovoProjeto },
+    { path: '/projetos/:id', component: PaginaProjeto, props: true },
+    { path: '/projetos/:id/editar', component: EditarProjeto, props: true },
   ],
 })

@@ -45,6 +45,7 @@ watch(() => props.id, carregar, { immediate: true })
     <p v-else-if="erro" role="alert">{{ erro }}</p>
     <template v-else-if="projeto">
       <h1>{{ projeto.nome }}</h1>
+      <RouterLink :to="`/projetos/${projeto.id}/editar`">Editar projeto</RouterLink>
       <p>{{ projeto.descricao }}</p>
       <p>
         Disciplina: {{ projeto.disciplina }} · Criado em
