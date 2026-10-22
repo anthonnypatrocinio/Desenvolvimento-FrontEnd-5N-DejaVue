@@ -20,7 +20,7 @@ onMounted(async () => {
 <template>
   <section>
     <h1>Lista de Projetos</h1>
-
+    <RouterLink to="/projetos/novo">Novo projeto</RouterLink>
     <p v-if="carregando">Carregando projetos...</p>
 
     <ul v-else-if="projetos.length > 0">
