@@ -2,12 +2,14 @@
 import { ref, watch } from 'vue'
 import { buscarProjetoComTarefas, type ProjetoComTarefas } from '../api'
 import TarefaCard from '../components/TarefaCard.vue'
+import { useMudarStatus } from '../composables/useMudarStatus'
 
 // O roteador (issue #10) entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
 const projeto = ref<ProjetoComTarefas | null>(null)
 const carregando = ref(true)
 const erro = ref('')
+const { erroStatus, mudarStatus } = useMudarStatus()
 
 // A data vem como texto "AAAA-MM-DD". Trocar a ordem evita o fuso horário do Date.
 const formatarData = (data: string) => data.split('-').reverse().join('/')
@@ -54,9 +56,15 @@ watch(() => props.id, carregar, { immediate: true })
 
       <h2>Tarefas ({{ projeto.tarefas.length }})</h2>
       <RouterLink :to="{ path: '/tarefas/nova', query: { projetoId: projeto.id } }">  Nova tarefa </RouterLink>
+      <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
       <p v-if="projeto.tarefas.length === 0">Este projeto ainda não tem tarefas.</p>
       <div v-else class="lista">
-        <TarefaCard v-for="t in projeto.tarefas" :key="t.id" :tarefa="t" />
+        <TarefaCard
+          v-for="t in projeto.tarefas"
+          :key="t.id"
+          :tarefa="t"
+          @mudar-status="(id, novo) => mudarStatus(projeto!.tarefas, id, novo)"
+        />
       </div>
     </template>
   </section>

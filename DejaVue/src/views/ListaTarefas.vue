@@ -4,10 +4,12 @@ import { listarTarefas } from '../api'
 import type { Tarefa } from '../tipos'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useFiltros } from '../composables/useFiltros'
+import { useMudarStatus } from '../composables/useMudarStatus'
 import { opcoesPrioridade, opcoesStatus, rotuloPrioridade, rotuloStatus } from '../rotulos'
 
 const tarefas = ref<Tarefa[]>([])
 const { busca, status, prioridade, aplicarFiltros } = useFiltros()
+const { erroStatus, mudarStatus } = useMudarStatus()
 
 // Só as tarefas que passam pela busca e pelos filtros (a lista original não muda)
 const visiveis = computed(() => aplicarFiltros(tarefas.value))
@@ -24,13 +26,7 @@ onMounted(async () => {
 
     <div class="campo-busca">
       <label for="busca">Buscar por título</label>
-      <input
-        id="busca"
-        v-model="busca"
-        type="search"
-        placeholder="Ex.: quadro"
-        autocomplete="off"
-      />
+      <input id="busca" v-model="busca" type="search" placeholder="Ex.: quadro" autocomplete="off" />
     </div>
 
     <div class="filtros">
@@ -51,8 +47,15 @@ onMounted(async () => {
       </div>
     </div>
 
+    <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
+
     <div class="lista">
-      <TarefaCard v-for="t in visiveis" :key="t.id" :tarefa="t" />
+      <TarefaCard
+        v-for="t in visiveis"
+        :key="t.id"
+        :tarefa="t"
+        @mudar-status="(id, novo) => mudarStatus(tarefas, id, novo)"
+      />
     </div>
   </section>
 </template>
