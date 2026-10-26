@@ -9,17 +9,16 @@ const emTarefas = computed(
   () => route.path === "/" || route.path.startsWith("/tarefas"),
 );
 const emProjetos = computed(() => route.path.startsWith("/projetos"));
+const emQuadro = computed(() => route.path.startsWith("/quadro"));
 </script>
 
 <template>
   <header class="cabecalho">
     <RouterLink to="/" class="marca">DejaVue</RouterLink>
-
     <nav class="menu" aria-label="Navegação principal">
       <RouterLink to="/" :class="{ ativo: emTarefas }">Tarefas</RouterLink>
-      <RouterLink to="/projetos" :class="{ ativo: emProjetos }"
-        >Projetos</RouterLink
-      >
+      <RouterLink to="/quadro" :class="{ ativo: emQuadro }">Quadro</RouterLink>
+      <RouterLink to="/projetos" :class="{ ativo: emProjetos }">Projetos</RouterLink>
     </nav>
   </header>
 </template>
@@ -27,6 +26,7 @@ const emProjetos = computed(() => route.path.startsWith("/projetos"));
 <style scoped>
 .cabecalho {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -43,6 +43,7 @@ const emProjetos = computed(() => route.path.startsWith("/projetos"));
 
 .menu {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
