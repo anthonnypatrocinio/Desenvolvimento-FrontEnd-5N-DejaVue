@@ -1,19 +1,15 @@
 <script setup lang="ts">
-import type { Prioridade, Status, Tarefa } from '../tipos'
+import { opcoesStatus, rotuloPrioridade, rotuloStatus } from '../rotulos'
+import type { Status, Tarefa } from '../tipos'
 
-defineProps<{ tarefa: Tarefa }>()
+const props = defineProps<{ tarefa: Tarefa }>()
 
-const rotuloStatus: Record<Status, string> = {
-  'a-fazer': 'A fazer',
-  'em-andamento': 'Em andamento',
-  'em-revisao': 'Em revisão',
-  concluida: 'Concluída',
-}
+// O cartão não altera a prop: só avisa o pai, que grava e atualiza a lista.
+const emit = defineEmits<{ 'mudar-status': [id: Tarefa['id'], status: Status] }>()
 
-const rotuloPrioridade: Record<Prioridade, string> = {
-  baixa: 'Baixa',
-  media: 'Média',
-  alta: 'Alta',
+function aoMudarStatus(evento: Event) {
+  const novo = (evento.target as HTMLSelectElement).value as Status
+  emit('mudar-status', props.tarefa.id, novo)
 }
 
 // O prazo é texto "AAAA-MM-DD". Trocar a ordem evita o fuso horário do Date.
@@ -28,7 +24,12 @@ const formatarPrazo = (prazo: string) => prazo.split('-').reverse().join('/')
     <dl class="campos">
       <div>
         <dt>Status</dt>
-        <dd>{{ rotuloStatus[tarefa.status] }}</dd>
+        <dd>
+          <label :for="`status-${tarefa.id}`" class="so-leitor">Mudar o status de {{ tarefa.titulo }}</label>
+          <select :id="`status-${tarefa.id}`" :value="tarefa.status" @change="aoMudarStatus">
+            <option v-for="s in opcoesStatus" :key="s" :value="s">{{ rotuloStatus[s] }}</option>
+          </select>
+        </dd>
       </div>
       <div>
         <dt>Prioridade</dt>
@@ -71,5 +72,18 @@ dt {
 }
 dd {
   margin: 0;
+}
+select {
+  max-width: 100%;
+  font: inherit;
+}
+/* Rótulo só para leitor de tela: some da vista, continua na árvore de acessibilidade */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 </style>

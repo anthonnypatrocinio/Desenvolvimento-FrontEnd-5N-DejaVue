@@ -3,12 +3,14 @@ import { computed, onMounted, ref } from 'vue'
 import { listarTarefas } from '../api'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useFiltros } from '../composables/useFiltros'
+import { useMudarStatus } from '../composables/useMudarStatus'
 import { opcoesStatus, rotuloStatus } from '../rotulos'
 import type { Tarefa } from '../tipos'
 
 const tarefas = ref<Tarefa[]>([])
 const erro = ref('')
 const { aplicarFiltros } = useFiltros()
+const { erroStatus, mudarStatus } = useMudarStatus()
 
 onMounted(async () => {
   try {
@@ -34,6 +36,8 @@ const colunas = computed(() => {
   <section class="quadro">
     <h1>Quadro</h1>
     <p v-if="erro" role="alert">{{ erro }}</p>
+    <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
+
     <div class="colunas">
       <section
         v-for="c in colunas"
@@ -44,7 +48,12 @@ const colunas = computed(() => {
         <h2 :id="`coluna-${c.status}`">
           {{ c.titulo }} <span class="contagem">{{ c.tarefas.length }}</span>
         </h2>
-        <TarefaCard v-for="t in c.tarefas" :key="t.id" :tarefa="t" />
+        <TarefaCard
+          v-for="t in c.tarefas"
+          :key="t.id"
+          :tarefa="t"
+          @mudar-status="(id, novo) => mudarStatus(tarefas, id, novo)"
+        />
       </section>
     </div>
   </section>
@@ -55,7 +64,6 @@ const colunas = computed(() => {
   padding: 1.5rem;
   text-align: left;
 }
-
 .colunas {
   display: grid;
   grid-template-columns: repeat(4, minmax(260px, 1fr));
@@ -63,7 +71,6 @@ const colunas = computed(() => {
   overflow-x: auto;
   padding-bottom: 0.5rem;
 }
-
 .coluna {
   display: flex;
   flex-direction: column;
@@ -74,12 +81,10 @@ const colunas = computed(() => {
   border: 1px solid var(--border);
   border-radius: 8px;
 }
-
 .coluna h2 {
   margin: 0;
   font-size: 1.1rem;
 }
-
 .contagem {
   margin-left: 0.25rem;
   opacity: 0.7;
