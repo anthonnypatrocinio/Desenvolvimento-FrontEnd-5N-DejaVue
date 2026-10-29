@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { listarTarefas } from '../api'
+import AlternarVisao from '../components/AlternarVisao.vue'
+import BarraFiltros from '../components/BarraFiltros.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
@@ -35,6 +37,10 @@ const colunas = computed(() => {
 <template>
   <section class="quadro">
     <h1>Quadro</h1>
+
+    <AlternarVisao />
+    <BarraFiltros />
+
     <p v-if="erro" role="alert">{{ erro }}</p>
     <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
 
