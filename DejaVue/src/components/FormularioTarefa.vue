@@ -171,54 +171,39 @@ async function aoEnviar() {
 <style scoped>
 .formulario {
   display: grid;
-  gap: 1rem;
-  max-width: 32rem;
-  text-align: left;
+  gap: 0.9rem;
+  max-width: 34rem;
 }
 .campo {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+.campo > label span {
+  color: var(--vermelho);
 }
 .erro {
   margin: 0;
-  color: #b91c1c;
-  font-weight: 600;
+  color: var(--vermelho);
+  font-size: 1.1rem;
 }
 .resumo {
   margin: 0;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid #b91c1c;
-  border-radius: 6px;
-  color: #b91c1c;
-  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  border: 2px dashed var(--vermelho);
+  border-radius: var(--rabisco-2);
+  background: color-mix(in srgb, var(--vermelho) 7%, var(--papel));
+  color: var(--vermelho);
+  font-size: 1.2rem;
+  transform: rotate(-0.6deg);
 }
 .legenda {
   margin: 0;
-  font-size: 0.85rem;
+  font: 0.8rem var(--f-maquina);
+  color: var(--suave);
 }
-[aria-invalid='true'] {
-  border: 2px solid #b91c1c;
-}
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
-button:focus-visible {
-  outline: 3px solid #6d28d9;
-  outline-offset: 2px;
-}
-button {
-  min-height: 2.5rem;
-  padding: 0 1rem;
-  font: inherit;
-}
-input,
-textarea,
-select {
-  padding: 0.4rem 0.5rem;
-  font: inherit;
+.formulario button[type='submit'] {
+  justify-self: start;
+  margin-top: 0.4rem;
+  background: var(--mt-verde);
 }
 </style>
