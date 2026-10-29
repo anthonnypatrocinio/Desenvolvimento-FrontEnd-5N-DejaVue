@@ -9,7 +9,7 @@ const { busca, status, prioridade } = useFiltros()
 
 <template>
   <div class="barra" role="search" aria-label="Buscar e filtrar tarefas">
-    <div class="campo">
+    <div class="campo busca">
       <label for="busca">Buscar por título</label>
       <input id="busca" v-model="busca" type="search" placeholder="Ex.: quadro" autocomplete="off" />
     </div>
@@ -36,17 +36,15 @@ const { busca, status, prioridade } = useFiltros()
 .barra {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin: 1rem 0;
-  text-align: left;
+  gap: 0.6rem 2rem;
+  margin: 0.6rem 0 1.2rem;
 }
 .campo {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.1rem;
+  min-width: 11rem;
 }
-input,
-select {
-  padding: 0.4rem 0.5rem;
-  font: inherit;
+.campo.busca {
+  flex: 1 1 16rem;
 }
 </style>

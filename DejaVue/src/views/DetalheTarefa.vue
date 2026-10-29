@@ -68,20 +68,22 @@ watch(() => props.id, carregar, { immediate: true });
     <p v-else-if="erro" role="alert">{{ erro }}</p>
 
     <article v-else-if="tarefa">
-      <h1>{{ tarefa.titulo }}</h1>
-        <RouterLink :to="`/tarefas/${tarefa.id}/editar`">Editar</RouterLink>
-      <dl class="campos">
-        <dt>Id</dt>
-        <dd>{{ tarefa.id }}</dd>
+      <header class="pagina-topo">
+        <div>
+          <span class="sobre">Tarefa #{{ tarefa.id }}</span>
+          <h1>{{ tarefa.titulo }}</h1>
+        </div>
+        <RouterLink :to="`/tarefas/${tarefa.id}/editar`" class="botao botao--suave">Editar</RouterLink>
+      </header>
 
+      <div class="chips">
+        <span class="chip" :data-status="tarefa.status">{{ rotuloStatus[tarefa.status] }}</span>
+        <span class="chip" :data-prioridade="tarefa.prioridade">Prioridade {{ rotuloPrioridade[tarefa.prioridade].toLowerCase() }}</span>
+      </div>
+
+      <dl class="campos">
         <dt>Descrição</dt>
         <dd>{{ tarefa.descricao }}</dd>
-
-        <dt>Status</dt>
-        <dd>{{ rotuloStatus[tarefa.status] }}</dd>
-
-        <dt>Prioridade</dt>
-        <dd>{{ rotuloPrioridade[tarefa.prioridade] }}</dd>
 
         <dt>Responsável</dt>
         <dd>{{ tarefa.responsavel }}</dd>
@@ -101,24 +103,41 @@ watch(() => props.id, carregar, { immediate: true });
 </template>
 
 <style scoped>
-.detalhe {
-  padding: 1.5rem;
-  text-align: left;
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0.4rem 0 1.6rem;
 }
-.voltar {
-  display: inline-block;
-  margin-bottom: 1rem;
-}
+/* ficha com campos "para preencher" */
 .campos {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 0.5rem 1.5rem;
+  gap: 0.2rem 1.6rem;
+  max-width: 44rem;
   margin: 0;
 }
 dt {
-  opacity: 0.7;
+  align-self: end;
+  font: 0.8rem var(--f-maquina);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--suave);
+  padding-bottom: 0.25rem;
 }
 dd {
   margin: 0;
+  padding: 0.2rem 0.2rem;
+  border-bottom: 2px dotted color-mix(in srgb, var(--tinta) 55%, transparent);
+  font-size: 1.35rem;
+  color: var(--tinta);
+}
+@media (max-width: 560px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+  dt {
+    padding-top: 0.6rem;
+  }
 }
 </style>

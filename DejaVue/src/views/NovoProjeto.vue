@@ -32,12 +32,10 @@ async function salvar(dados: DadosProjeto) {
  </section>
 </template>
 <style scoped>
-.tela-projeto {
- padding: 1.5rem;
- text-align: left;
-}
-.voltar {
- display: inline-block;
- margin-bottom: 1rem;
+.campo {
+  display: grid;
+  gap: 0.1rem;
+  max-width: 34rem;
+  margin-bottom: 1rem;
 }
 </style>

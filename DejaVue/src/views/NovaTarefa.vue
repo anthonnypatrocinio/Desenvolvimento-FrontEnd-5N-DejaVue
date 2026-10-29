@@ -93,22 +93,10 @@ async function salvar(dados: NovaTarefa) {
 </template>
 
 <style scoped>
-.pagina-form {
-  padding: 1.5rem;
-  text-align: left;
-}
-.voltar {
-  display: inline-block;
-  margin-bottom: 1rem;
-}
 .campo {
   display: grid;
-  gap: 0.25rem;
-  max-width: 32rem;
+  gap: 0.1rem;
+  max-width: 34rem;
   margin-bottom: 1rem;
-}
-input {
-  padding: 0.4rem 0.5rem;
-  font: inherit;
 }
 </style>
