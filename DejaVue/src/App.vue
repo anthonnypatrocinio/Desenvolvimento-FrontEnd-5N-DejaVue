@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import CabecalhoMenu from "./components/CabecalhoMenu.vue";
+import CabecalhoMenu from './components/CabecalhoMenu.vue'
+import FundoMesa from './components/FundoMesa.vue'
 </script>
 
 <template>
-  <CabecalhoMenu />
-  <main class="conteudo">
-    <RouterView />
-  </main>
+  <FundoMesa />
+  <div class="mesa">
+    <CabecalhoMenu />
+    <div class="caderno">
+      <div class="espiral" aria-hidden="true"></div>
+      <main class="pagina">
+        <!-- cada tela entra como uma folha virando (transição "folha", em style.css) -->
+        <RouterView v-slot="{ Component }">
+          <Transition name="folha" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
+      </main>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-.conteudo {
-  flex-grow: 1;
-}
-</style>
