@@ -4,14 +4,16 @@ import { useRouter } from 'vue-router'
 import { buscarTarefa, atualizarTarefa } from '../api.ts'
 import type { NovaTarefa } from '../tipos.ts'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import FormularioTarefa from '../components/FormularioTarefa.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 
 // O roteador entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
 const router = useRouter()
 
-const { dados: tarefa, carregando, erro } = useCarregar(() => buscarTarefa(props.id), () => props.id)
+const { dados: tarefa, carregando, erro, recarregar } = useCarregar(() => buscarTarefa(props.id), () => props.id)
 
 // o formulário trabalha com os campos sem o id
 const inicial = computed<NovaTarefa | null>(() => {
@@ -48,7 +50,7 @@ async function salvar(dados: NovaTarefa) {
     <h1>Editar tarefa</h1>
 
     <EstadoCarregando v-if="carregando" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar a tarefa.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar a tarefa')" @tentar-novamente="recarregar" />
     <template v-else-if="inicial">
       <p v-if="erroSalvar" role="alert">{{ erroSalvar }}</p>
       <p v-if="enviando">Salvando...</p>

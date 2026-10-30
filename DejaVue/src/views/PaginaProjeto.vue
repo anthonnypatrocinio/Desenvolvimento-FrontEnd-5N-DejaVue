@@ -2,14 +2,16 @@
 import { computed } from 'vue'
 import { buscarProjetoComTarefas } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 
 // O roteador entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
 // _embed=tarefas devolve o projeto já com as tarefas dele; refaz a busca se o :id mudar
-const { dados: projeto, carregando, erro } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
+const { dados: projeto, carregando, erro, recarregar } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
 const { erroStatus, mudarStatus } = useMudarStatus()
 
 // Progresso = tarefas concluídas / total (recalcula sozinho quando um status muda)
@@ -28,7 +30,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
     <RouterLink to="/projetos" class="voltar">← Voltar para os projetos</RouterLink>
 
     <EstadoCarregando v-if="carregando" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar o projeto.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar o projeto')" @tentar-novamente="recarregar" />
     <template v-else-if="projeto">
       <header class="pagina-topo">
         <div>
