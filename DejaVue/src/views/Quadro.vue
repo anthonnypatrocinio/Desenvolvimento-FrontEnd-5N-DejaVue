@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { listarTarefas } from '../api'
 import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
 import TarefaCard from '../components/TarefaCard.vue'
+import { useCarregar } from '../composables/useCarregar'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 import { opcoesStatus, rotuloStatus } from '../rotulos'
 import type { Status, Tarefa } from '../tipos'
 
-const tarefas = ref<Tarefa[]>([])
-const erro = ref('')
+const { dados: tarefas, carregando, erro } = useCarregar(listarTarefas)
 
 // Arrastar e soltar: a coluna sob o ponteiro fica destacada; ao soltar, o status muda.
 // (O select do cartão continua existindo: é a alternativa para quem usa só o teclado.)
@@ -32,24 +33,20 @@ function soltar(evento: DragEvent, destino: Status) {
   evento.preventDefault()
   sobre.value = null
   const id = evento.dataTransfer?.getData('text/plain')
-  const tarefa = tarefas.value.find((t) => String(t.id) === id)
-  if (tarefa) mudarStatus(tarefas.value, tarefa.id, destino)
+  const tarefa = tarefas.value?.find((t) => String(t.id) === id)
+  if (tarefa) mudar(tarefa.id, destino)
 }
 const { aplicarFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
 
-onMounted(async () => {
-  try {
-    tarefas.value = await listarTarefas()
-  } catch {
-    erro.value = 'Não foi possível carregar as tarefas. O json-server está rodando?'
-  }
-})
+function mudar(id: Tarefa['id'], novo: Status) {
+  if (tarefas.value) mudarStatus(tarefas.value, id, novo)
+}
 
 // Uma coluna por status, na ordem de opcoesStatus, já respeitando busca e filtros.
 // Quando o status de uma tarefa muda, o computed recalcula e o cartão troca de coluna.
 const colunas = computed(() => {
-  const visiveis = aplicarFiltros(tarefas.value)
+  const visiveis = aplicarFiltros(tarefas.value ?? [])
   return opcoesStatus.map((s) => ({
     status: s,
     titulo: rotuloStatus[s],
@@ -71,10 +68,11 @@ const colunas = computed(() => {
     <AlternarVisao />
     <BarraFiltros />
 
-    <p v-if="erro" role="alert">{{ erro }}</p>
     <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
 
-    <div class="colunas">
+    <EstadoCarregando v-if="carregando" />
+    <p v-else-if="erro" role="alert">Não foi possível carregar as tarefas.</p>
+    <div v-else class="colunas">
       <section
         v-for="c in colunas"
         :key="c.status"
@@ -95,7 +93,7 @@ const colunas = computed(() => {
           :key="t.id"
           :tarefa="t"
           arrastavel
-          @mudar-status="(id, novo) => mudarStatus(tarefas, id, novo)"
+          @mudar-status="mudar"
         />
       </section>
     </div>

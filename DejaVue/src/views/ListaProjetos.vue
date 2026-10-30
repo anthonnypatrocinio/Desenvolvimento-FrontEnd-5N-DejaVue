@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { listarProjetos } from '../api'
-import type { Projeto } from '../tipos'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
+import { useCarregar } from '../composables/useCarregar'
 
-const projetos = ref<Projeto[]>([])
-const carregando = ref(true)
-
-onMounted(async () => {
-  try {
-    projetos.value = await listarProjetos()
-  } catch (erro) {
-    console.error('Erro ao buscar projetos:', erro)
-  } finally {
-    carregando.value = false
-  }
-})
+const { dados, carregando, erro } = useCarregar(listarProjetos)
+const projetos = computed(() => dados.value ?? [])
 
 // cores das capas dos cadernos (a ordem se repete se houver mais projetos)
 const capas = ['#c0504d', '#3b78b5', '#4a9a62', '#8a5aa8', '#d58a2a']
@@ -30,7 +21,8 @@ const capas = ['#c0504d', '#3b78b5', '#4a9a62', '#8a5aa8', '#d58a2a']
       <RouterLink to="/projetos/novo" class="botao botao--destaque">+ Novo projeto</RouterLink>
     </header>
 
-    <p v-if="carregando">Carregando projetos...</p>
+    <EstadoCarregando v-if="carregando" mensagem="Buscando os cadernos" />
+    <p v-else-if="erro" role="alert">Não foi possível carregar os projetos.</p>
 
     <ul v-else-if="projetos.length > 0" class="estante">
       <li v-for="(projeto, i) in projetos" :key="projeto.id">

@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { listarTarefas } from '../api'
-import type { Tarefa } from '../tipos'
 import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
 import TarefaCard from '../components/TarefaCard.vue'
+import { useCarregar } from '../composables/useCarregar'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
+import type { Status, Tarefa } from '../tipos'
 
-const tarefas = ref<Tarefa[]>([])
+// dados = as tarefas (ou null enquanto não chegaram), carregando e erro vêm do composable
+const { dados: tarefas, carregando, erro } = useCarregar(listarTarefas)
 const { aplicarFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
 
 // Só as tarefas que passam pela busca e pelos filtros (a lista original não muda)
-const visiveis = computed(() => aplicarFiltros(tarefas.value))
+const visiveis = computed(() => aplicarFiltros(tarefas.value ?? []))
+const total = computed(() => tarefas.value?.length ?? 0)
 
-onMounted(async () => {
-  tarefas.value = await listarTarefas()
-})
+function mudar(id: Tarefa['id'], novo: Status) {
+  if (tarefas.value) mudarStatus(tarefas.value, id, novo)
+}
 </script>
 
 <template>
@@ -33,17 +37,16 @@ onMounted(async () => {
     <AlternarVisao />
     <BarraFiltros />
 
-    <p class="resumo" aria-live="polite">{{ visiveis.length }} de {{ tarefas.length }} tarefas</p>
-    <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
+    <EstadoCarregando v-if="carregando" />
+    <p v-else-if="erro" role="alert">Não foi possível carregar as tarefas.</p>
+    <template v-else>
+      <p class="resumo" aria-live="polite">{{ visiveis.length }} de {{ total }} tarefas</p>
+      <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
 
-    <div class="lista">
-      <TarefaCard
-        v-for="t in visiveis"
-        :key="t.id"
-        :tarefa="t"
-        @mudar-status="(id, novo) => mudarStatus(tarefas, id, novo)"
-      />
-    </div>
+      <div class="lista">
+        <TarefaCard v-for="t in visiveis" :key="t.id" :tarefa="t" @mudar-status="mudar" />
+      </div>
+    </template>
   </section>
 </template>
 
