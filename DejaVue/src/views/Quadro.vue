@@ -5,6 +5,7 @@ import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
@@ -38,7 +39,7 @@ function soltar(evento: DragEvent, destino: Status) {
   const tarefa = tarefas.value?.find((t) => String(t.id) === id)
   if (tarefa) mudar(tarefa.id, destino)
 }
-const { aplicarFiltros } = useFiltros()
+const { aplicarFiltros, limparFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
 
 function mudar(id: Tarefa['id'], novo: Status) {
@@ -47,6 +48,8 @@ function mudar(id: Tarefa['id'], novo: Status) {
 
 // Uma coluna por status, na ordem de opcoesStatus, já respeitando busca e filtros.
 // Quando o status de uma tarefa muda, o computed recalcula e o cartão troca de coluna.
+const total = computed(() => tarefas.value?.length ?? 0)
+
 const colunas = computed(() => {
   const visiveis = aplicarFiltros(tarefas.value ?? [])
   return opcoesStatus.map((s) => ({
@@ -55,6 +58,9 @@ const colunas = computed(() => {
     tarefas: visiveis.filter((t) => t.status === s),
   }))
 })
+
+// true quando existem tarefas, mas a busca/os filtros escondem todas
+const semResultado = computed(() => total.value > 0 && colunas.value.every((c) => c.tarefas.length === 0))
 </script>
 
 <template>
@@ -74,6 +80,12 @@ const colunas = computed(() => {
 
     <EstadoCarregando v-if="carregando" />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar as tarefas')" @tentar-novamente="recarregar" />
+    <EstadoVazio v-else-if="total === 0" mensagem="Você ainda não tem tarefas.">
+      <RouterLink to="/tarefas/nova" class="botao botao--destaque">Criar a primeira tarefa</RouterLink>
+    </EstadoVazio>
+    <EstadoVazio v-else-if="semResultado" mensagem="Nenhuma tarefa encontrada com esses filtros.">
+      <button type="button" class="botao" @click="limparFiltros">Limpar filtros</button>
+    </EstadoVazio>
     <div v-else class="colunas">
       <section
         v-for="c in colunas"

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { listarProjetos } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
 
@@ -26,7 +27,11 @@ const capas = ['#c0504d', '#3b78b5', '#4a9a62', '#8a5aa8', '#d58a2a']
     <EstadoCarregando v-if="carregando" mensagem="Buscando os cadernos" />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar os projetos')" @tentar-novamente="recarregar" />
 
-    <ul v-else-if="projetos.length > 0" class="estante">
+    <EstadoVazio v-else-if="projetos.length === 0" mensagem="Você ainda não tem projetos.">
+      <RouterLink to="/projetos/novo" class="botao botao--destaque">Criar o primeiro projeto</RouterLink>
+    </EstadoVazio>
+
+    <ul v-else class="estante">
       <li v-for="(projeto, i) in projetos" :key="projeto.id">
         <!-- cada projeto é um caderno: capa colorida, elástico e etiqueta -->
         <RouterLink :to="`/projetos/${projeto.id}`" class="capa" :style="{ '--capa': capas[i % capas.length] }">
@@ -40,8 +45,6 @@ const capas = ['#c0504d', '#3b78b5', '#4a9a62', '#8a5aa8', '#d58a2a']
         </RouterLink>
       </li>
     </ul>
-
-    <p v-else>Nenhum projeto encontrado.</p>
   </section>
 </template>
 

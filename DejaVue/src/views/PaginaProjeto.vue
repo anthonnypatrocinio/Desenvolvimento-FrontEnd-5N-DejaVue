@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { buscarProjetoComTarefas } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
@@ -58,7 +59,11 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
       </div>
 
       <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
-      <p v-if="projeto.tarefas.length === 0">Este projeto ainda não tem tarefas.</p>
+      <EstadoVazio v-if="projeto.tarefas.length === 0" mensagem="Este projeto ainda não tem tarefas.">
+        <RouterLink :to="{ path: '/tarefas/nova', query: { projetoId: projeto.id } }" class="botao botao--destaque">
+          Nova tarefa neste projeto
+        </RouterLink>
+      </EstadoVazio>
       <div v-else class="lista">
         <TarefaCard
           v-for="t in projeto.tarefas"
