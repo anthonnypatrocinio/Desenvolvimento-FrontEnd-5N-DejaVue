@@ -2,9 +2,11 @@
 import { computed } from 'vue'
 import { listarProjetos } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 
-const { dados, carregando, erro } = useCarregar(listarProjetos)
+const { dados, carregando, erro, recarregar } = useCarregar(listarProjetos)
 const projetos = computed(() => dados.value ?? [])
 
 // cores das capas dos cadernos (a ordem se repete se houver mais projetos)
@@ -22,7 +24,7 @@ const capas = ['#c0504d', '#3b78b5', '#4a9a62', '#8a5aa8', '#d58a2a']
     </header>
 
     <EstadoCarregando v-if="carregando" mensagem="Buscando os cadernos" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar os projetos.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar os projetos')" @tentar-novamente="recarregar" />
 
     <ul v-else-if="projetos.length > 0" class="estante">
       <li v-for="(projeto, i) in projetos" :key="projeto.id">

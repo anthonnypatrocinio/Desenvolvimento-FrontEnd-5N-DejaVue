@@ -4,14 +4,16 @@ import { listarTarefas } from '../api'
 import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 import { opcoesStatus, rotuloStatus } from '../rotulos'
 import type { Status, Tarefa } from '../tipos'
 
-const { dados: tarefas, carregando, erro } = useCarregar(listarTarefas)
+const { dados: tarefas, carregando, erro, recarregar } = useCarregar(listarTarefas)
 
 // Arrastar e soltar: a coluna sob o ponteiro fica destacada; ao soltar, o status muda.
 // (O select do cartão continua existindo: é a alternativa para quem usa só o teclado.)
@@ -71,7 +73,7 @@ const colunas = computed(() => {
     <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
 
     <EstadoCarregando v-if="carregando" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar as tarefas.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar as tarefas')" @tentar-novamente="recarregar" />
     <div v-else class="colunas">
       <section
         v-for="c in colunas"

@@ -3,13 +3,15 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { atualizarProjeto, buscarProjeto } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import FormularioProjeto, { type DadosProjeto } from '../components/FormularioProjeto.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
 
-const { dados: projeto, carregando, erro } = useCarregar(() => buscarProjeto(props.id), () => props.id)
+const { dados: projeto, carregando, erro, recarregar } = useCarregar(() => buscarProjeto(props.id), () => props.id)
 
 // o formulário só edita estes 3 campos
 const inicial = computed<DadosProjeto | null>(() => {
@@ -41,7 +43,7 @@ async function salvar(dados: DadosProjeto) {
  <RouterLink :to="`/projetos/${id}`" class="voltar">← Voltar para o projeto</RouterLink>
  <h1>Editar projeto</h1>
  <EstadoCarregando v-if="carregando" />
- <p v-else-if="erro" role="alert">Não foi possível carregar o projeto.</p>
+ <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar o projeto')" @tentar-novamente="recarregar" />
  <template v-else-if="inicial">
  <FormularioProjeto :inicial="inicial" :enviando="enviando" @enviar="salvar" />
  <p v-if="erroSalvar" role="alert">{{ erroSalvar }}</p>

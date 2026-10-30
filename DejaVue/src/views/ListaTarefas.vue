@@ -4,14 +4,16 @@ import { listarTarefas } from '../api'
 import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 import type { Status, Tarefa } from '../tipos'
 
 // dados = as tarefas (ou null enquanto não chegaram), carregando e erro vêm do composable
-const { dados: tarefas, carregando, erro } = useCarregar(listarTarefas)
+const { dados: tarefas, carregando, erro, recarregar } = useCarregar(listarTarefas)
 const { aplicarFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
 
@@ -38,7 +40,7 @@ function mudar(id: Tarefa['id'], novo: Status) {
     <BarraFiltros />
 
     <EstadoCarregando v-if="carregando" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar as tarefas.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar as tarefas')" @tentar-novamente="recarregar" />
     <template v-else>
       <p class="resumo" aria-live="polite">{{ visiveis.length }} de {{ total }} tarefas</p>
       <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>

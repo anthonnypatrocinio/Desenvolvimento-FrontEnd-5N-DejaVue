@@ -1,12 +1,24 @@
 import type { NovaTarefa, Projeto, Tarefa } from './tipos'
 
 const API = 'http://localhost:3000'
+
+// Erro de uma resposta HTTP que não deu certo. Guarda o `status` (404, 500...)
+// para a tela diferenciar "não existe" de "o servidor falhou".
+export class ErroHttp extends Error {
+  status: number
+
+  constructor(status: number) {
+    super(`HTTP ${status}`) // a mensagem continua "HTTP 404", como antes
+    this.name = 'ErroHttp'
+    this.status = status
+  }
+}
 export type ProjetoComTarefas = Projeto & { tarefas: Tarefa[] }
 export type NovoProjeto = Omit<Projeto, 'id'>
 
 async function requisicao<T>(caminho: string, opcoes?: RequestInit): Promise<T> {
   const resposta = await fetch(`${API}${caminho}`, opcoes)
-  if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
+  if (!resposta.ok) throw new ErroHttp(resposta.status)
   return resposta.json() as Promise<T>
 }
 

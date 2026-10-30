@@ -2,7 +2,9 @@
 import { computed } from 'vue'
 import { buscarProjeto, buscarTarefa } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { mensagemDeErro } from '../erros'
 import type { Prioridade, Status } from '../tipos'
 
 // O roteador entrega o :id da URL como prop (props: true)
@@ -33,7 +35,7 @@ async function buscarDetalhe(id: string) {
 }
 
 // O segundo argumento manda buscar de novo quando o :id da URL mudar
-const { dados, carregando, erro } = useCarregar(() => buscarDetalhe(props.id), () => props.id)
+const { dados, carregando, erro, recarregar } = useCarregar(() => buscarDetalhe(props.id), () => props.id)
 const tarefa = computed(() => dados.value?.tarefa ?? null)
 const projeto = computed(() => dados.value?.projeto ?? null)
 </script>
@@ -43,7 +45,7 @@ const projeto = computed(() => dados.value?.projeto ?? null)
     <RouterLink to="/" class="voltar">← Voltar para a lista</RouterLink>
 
     <EstadoCarregando v-if="carregando" />
-    <p v-else-if="erro" role="alert">Não foi possível carregar a tarefa.</p>
+    <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar a tarefa')" @tentar-novamente="recarregar" />
 
     <article v-else-if="tarefa">
       <header class="pagina-topo">
