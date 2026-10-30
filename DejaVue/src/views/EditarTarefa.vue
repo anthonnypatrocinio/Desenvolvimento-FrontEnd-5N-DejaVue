@@ -5,9 +5,10 @@ import { buscarTarefa, atualizarTarefa } from '../api.ts'
 import type { NovaTarefa } from '../tipos.ts'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import FormularioTarefa from '../components/FormularioTarefa.vue'
 import { useCarregar } from '../composables/useCarregar'
-import { mensagemDeErro } from '../erros'
+import { ehNaoEncontrado, mensagemDeErro } from '../erros'
 
 // O roteador entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
@@ -50,6 +51,12 @@ async function salvar(dados: NovaTarefa) {
     <h1>Editar tarefa</h1>
 
     <EstadoCarregando v-if="carregando" />
+    <EstadoNaoEncontrado
+      v-else-if="ehNaoEncontrado(erro)"
+      mensagem="Tarefa não encontrada."
+      voltar-para="/"
+      voltar-texto="Voltar para as tarefas"
+    />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar a tarefa')" @tentar-novamente="recarregar" />
     <template v-else-if="inicial">
       <p v-if="erroSalvar" role="alert">{{ erroSalvar }}</p>

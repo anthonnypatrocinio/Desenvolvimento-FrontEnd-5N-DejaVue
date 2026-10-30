@@ -4,9 +4,10 @@ import { useRouter } from 'vue-router'
 import { atualizarProjeto, buscarProjeto } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import FormularioProjeto, { type DadosProjeto } from '../components/FormularioProjeto.vue'
 import { useCarregar } from '../composables/useCarregar'
-import { mensagemDeErro } from '../erros'
+import { ehNaoEncontrado, mensagemDeErro } from '../erros'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -43,6 +44,12 @@ async function salvar(dados: DadosProjeto) {
  <RouterLink :to="`/projetos/${id}`" class="voltar">← Voltar para o projeto</RouterLink>
  <h1>Editar projeto</h1>
  <EstadoCarregando v-if="carregando" />
+ <EstadoNaoEncontrado
+   v-else-if="ehNaoEncontrado(erro)"
+   mensagem="Projeto não encontrado."
+   voltar-para="/projetos"
+   voltar-texto="Voltar para os projetos"
+ />
  <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar o projeto')" @tentar-novamente="recarregar" />
  <template v-else-if="inicial">
  <FormularioProjeto :inicial="inicial" :enviando="enviando" @enviar="salvar" />
