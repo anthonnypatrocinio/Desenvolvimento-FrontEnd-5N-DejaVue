@@ -1,14 +1,15 @@
-''<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { buscarProjetoComTarefas, type ProjetoComTarefas } from '../api'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { buscarProjetoComTarefas } from '../api'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
 import TarefaCard from '../components/TarefaCard.vue'
+import { useCarregar } from '../composables/useCarregar'
 import { useMudarStatus } from '../composables/useMudarStatus'
 
-// O roteador (issue #10) entrega o :id da URL como prop (props: true)
+// O roteador entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
-const projeto = ref<ProjetoComTarefas | null>(null)
-const carregando = ref(true)
-const erro = ref('')
+// _embed=tarefas devolve o projeto já com as tarefas dele; refaz a busca se o :id mudar
+const { dados: projeto, carregando, erro } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
 const { erroStatus, mudarStatus } = useMudarStatus()
 
 // Progresso = tarefas concluídas / total (recalcula sozinho quando um status muda)
@@ -20,38 +21,14 @@ const percentual = computed(() => {
 
 // A data vem como texto "AAAA-MM-DD". Trocar a ordem evita o fuso horário do Date.
 const formatarData = (data: string) => data.split('-').reverse().join('/')
-
-async function carregar(id: string) {
-  carregando.value = true
-  erro.value = ''
-  projeto.value = null
-  try {
-    // _embed=tarefas devolve o projeto já com as tarefas dele
-    const encontrado = await buscarProjetoComTarefas(id)
-    // Se o id da URL mudou enquanto esperava, descarta a resposta antiga
-    if (id !== props.id) return
-    projeto.value = encontrado
-  } catch (e) {
-    if (id !== props.id) return
-    erro.value =
-      e instanceof Error && e.message === 'HTTP 404'
-        ? 'Projeto não encontrado.'
-        : 'Não foi possível carregar o projeto. O json-server está rodando?'
-  } finally {
-    if (id === props.id) carregando.value = false
-  }
-}
-
-// immediate: busca ao abrir a tela; refaz a busca se o id da URL mudar
-watch(() => props.id, carregar, { immediate: true })
 </script>
 
 <template>
   <section class="pagina-projeto">
     <RouterLink to="/projetos" class="voltar">← Voltar para os projetos</RouterLink>
 
-    <p v-if="carregando">Carregando...</p>
-    <p v-else-if="erro" role="alert">{{ erro }}</p>
+    <EstadoCarregando v-if="carregando" />
+    <p v-else-if="erro" role="alert">Não foi possível carregar o projeto.</p>
     <template v-else-if="projeto">
       <header class="pagina-topo">
         <div>

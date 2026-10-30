@@ -1,71 +1,49 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { buscarProjeto, buscarTarefa } from "../api";
-import type { Prioridade, Projeto, Status, Tarefa } from "../tipos";
+import { computed } from 'vue'
+import { buscarProjeto, buscarTarefa } from '../api'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
+import { useCarregar } from '../composables/useCarregar'
+import type { Prioridade, Status } from '../tipos'
 
-// O roteador (issue #10) entrega o :id da URL como prop (props: true)
-const props = defineProps<{ id: string }>();
+// O roteador entrega o :id da URL como prop (props: true)
+const props = defineProps<{ id: string }>()
 
 const rotuloStatus: Record<Status, string> = {
-  "a-fazer": "A fazer",
-  "em-andamento": "Em andamento",
-  "em-revisao": "Em revisão",
-  concluida: "Concluída",
-};
-
-const rotuloPrioridade: Record<Prioridade, string> = {
-  baixa: "Baixa",
-  media: "Média",
-  alta: "Alta",
-};
-
-// O prazo é texto "AAAA-MM-DD". Trocar a ordem evita o fuso horário do Date.
-const formatarPrazo = (prazo: string) => prazo.split("-").reverse().join("/");
-
-const tarefa = ref<Tarefa | null>(null);
-const projeto = ref<Projeto | null>(null);
-const carregando = ref(true);
-const erro = ref("");
-
-async function carregar(id: string) {
-  carregando.value = true;
-  erro.value = "";
-  tarefa.value = null;
-  projeto.value = null;
-
-  try {
-    const encontrada = await buscarTarefa(id);
-    // Se o id mudou enquanto esperava a resposta, descarta o resultado antigo
-    if (id !== props.id) return;
-    tarefa.value = encontrada;
-
-    // O nome do projeto é um extra: se falhar, a tarefa continua aparecendo
-    try {
-      projeto.value = await buscarProjeto(encontrada.projetoId);
-    } catch {
-      projeto.value = null;
-    }
-  } catch (e) {
-    if (id !== props.id) return;
-    erro.value =
-      e instanceof Error && e.message === "HTTP 404"
-        ? "Tarefa não encontrada."
-        : "Não foi possível carregar a tarefa. O json-server está rodando?";
-  } finally {
-    if (id === props.id) carregando.value = false;
-  }
+  'a-fazer': 'A fazer',
+  'em-andamento': 'Em andamento',
+  'em-revisao': 'Em revisão',
+  concluida: 'Concluída',
 }
 
-// immediate: busca ao abrir a tela; refaz a busca se o id da URL mudar
-watch(() => props.id, carregar, { immediate: true });
+const rotuloPrioridade: Record<Prioridade, string> = {
+  baixa: 'Baixa',
+  media: 'Média',
+  alta: 'Alta',
+}
+
+// O prazo é texto "AAAA-MM-DD". Trocar a ordem evita o fuso horário do Date.
+const formatarPrazo = (prazo: string) => prazo.split('-').reverse().join('/')
+
+// A tarefa é obrigatória; o nome do projeto é um extra:
+// se ele falhar, a tarefa continua aparecendo (com "Projeto N" no lugar do nome).
+async function buscarDetalhe(id: string) {
+  const tarefa = await buscarTarefa(id)
+  const projeto = await buscarProjeto(tarefa.projetoId).catch(() => null)
+  return { tarefa, projeto }
+}
+
+// O segundo argumento manda buscar de novo quando o :id da URL mudar
+const { dados, carregando, erro } = useCarregar(() => buscarDetalhe(props.id), () => props.id)
+const tarefa = computed(() => dados.value?.tarefa ?? null)
+const projeto = computed(() => dados.value?.projeto ?? null)
 </script>
 
 <template>
   <section class="detalhe">
     <RouterLink to="/" class="voltar">← Voltar para a lista</RouterLink>
 
-    <p v-if="carregando">Carregando...</p>
-    <p v-else-if="erro" role="alert">{{ erro }}</p>
+    <EstadoCarregando v-if="carregando" />
+    <p v-else-if="erro" role="alert">Não foi possível carregar a tarefa.</p>
 
     <article v-else-if="tarefa">
       <header class="pagina-topo">
