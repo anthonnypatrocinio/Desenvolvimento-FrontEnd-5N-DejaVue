@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { buscarProjetoComTarefas } from '../api'
+import { buscarProjetoComTarefas } from '../api.ts'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
-import { useCarregar } from '../composables/useCarregar'
-import { mensagemDeErro } from '../erros'
-import { useMudarStatus } from '../composables/useMudarStatus'
+import { useCarregar } from '../composables/useCarregar.ts'
+import { ehNaoEncontrado, mensagemDeErro } from '../erros.ts'
+import { useMudarStatus } from '../composables/useMudarStatus.ts'
 
 // O roteador entrega o :id da URL como prop (props: true)
 const props = defineProps<{ id: string }>()
@@ -31,6 +32,12 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
     <RouterLink to="/projetos" class="voltar">← Voltar para os projetos</RouterLink>
 
     <EstadoCarregando v-if="carregando" />
+    <EstadoNaoEncontrado
+      v-else-if="ehNaoEncontrado(erro)"
+      mensagem="Projeto não encontrado."
+      voltar-para="/projetos"
+      voltar-texto="Voltar para os projetos"
+    />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar o projeto')" @tentar-novamente="recarregar" />
     <template v-else-if="projeto">
       <header class="pagina-topo">

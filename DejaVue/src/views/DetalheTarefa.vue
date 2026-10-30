@@ -3,8 +3,9 @@ import { computed } from 'vue'
 import { buscarProjeto, buscarTarefa } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import { useCarregar } from '../composables/useCarregar'
-import { mensagemDeErro } from '../erros'
+import { ehNaoEncontrado, mensagemDeErro } from '../erros'
 import type { Prioridade, Status } from '../tipos'
 
 // O roteador entrega o :id da URL como prop (props: true)
@@ -45,6 +46,12 @@ const projeto = computed(() => dados.value?.projeto ?? null)
     <RouterLink to="/" class="voltar">← Voltar para a lista</RouterLink>
 
     <EstadoCarregando v-if="carregando" />
+    <EstadoNaoEncontrado
+      v-else-if="ehNaoEncontrado(erro)"
+      mensagem="Tarefa não encontrada."
+      voltar-para="/"
+      voltar-texto="Voltar para as tarefas"
+    />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar a tarefa')" @tentar-novamente="recarregar" />
 
     <article v-else-if="tarefa">

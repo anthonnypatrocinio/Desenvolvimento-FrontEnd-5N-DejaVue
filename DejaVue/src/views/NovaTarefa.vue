@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { buscarTarefa, criarTarefa, listarTarefas } from '../api.ts'
 import type { NovaTarefa } from '../tipos.ts'
 import FormularioTarefa from '../components/FormularioTarefa.vue'
+import { ehNaoEncontrado } from '../erros.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,7 +36,7 @@ async function idJaExiste(id: string) {
     await buscarTarefa(id)
     return true
   } catch (e) {
-    if (e instanceof Error && e.message === 'HTTP 404') return false
+    if (ehNaoEncontrado(e)) return false
     throw e
   }
 }
