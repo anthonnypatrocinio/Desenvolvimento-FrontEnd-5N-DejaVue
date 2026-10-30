@@ -5,6 +5,7 @@ import AlternarVisao from '../components/AlternarVisao.vue'
 import BarraFiltros from '../components/BarraFiltros.vue'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
@@ -14,7 +15,7 @@ import type { Status, Tarefa } from '../tipos'
 
 // dados = as tarefas (ou null enquanto não chegaram), carregando e erro vêm do composable
 const { dados: tarefas, carregando, erro, recarregar } = useCarregar(listarTarefas)
-const { aplicarFiltros } = useFiltros()
+const { aplicarFiltros, limparFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
 
 // Só as tarefas que passam pela busca e pelos filtros (a lista original não muda)
@@ -41,11 +42,19 @@ function mudar(id: Tarefa['id'], novo: Status) {
 
     <EstadoCarregando v-if="carregando" />
     <EstadoErro v-else-if="erro" :mensagem="mensagemDeErro(erro, 'carregar as tarefas')" @tentar-novamente="recarregar" />
+    <!-- vazio 1: não existe nenhuma tarefa -->
+    <EstadoVazio v-else-if="total === 0" mensagem="Você ainda não tem tarefas.">
+      <RouterLink to="/tarefas/nova" class="botao botao--destaque">Criar a primeira tarefa</RouterLink>
+    </EstadoVazio>
     <template v-else>
       <p class="resumo" aria-live="polite">{{ visiveis.length }} de {{ total }} tarefas</p>
       <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
 
-      <div class="lista">
+      <!-- vazio 2: existem tarefas, mas a busca/os filtros escondem todas -->
+      <EstadoVazio v-if="visiveis.length === 0" mensagem="Nenhuma tarefa encontrada com esses filtros.">
+        <button type="button" class="botao" @click="limparFiltros">Limpar filtros</button>
+      </EstadoVazio>
+      <div v-else class="lista">
         <TarefaCard v-for="t in visiveis" :key="t.id" :tarefa="t" @mudar-status="mudar" />
       </div>
     </template>
