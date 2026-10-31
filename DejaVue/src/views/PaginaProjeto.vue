@@ -8,6 +8,7 @@ import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar.ts'
 import { ehNaoEncontrado, mensagemDeErro } from '../erros.ts'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa'
 import { useMudarStatus } from '../composables/useMudarStatus.ts'
 
 // O roteador entrega o :id da URL como prop (props: true)
@@ -15,6 +16,7 @@ const props = defineProps<{ id: string }>()
 // _embed=tarefas devolve o projeto já com as tarefas dele; refaz a busca se o :id mudar
 const { dados: projeto, carregando, erro, recarregar } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
 const { erroStatus, mudarStatus } = useMudarStatus()
+const { excluir } = useExcluirTarefa()
 
 // Progresso = tarefas concluídas / total (recalcula sozinho quando um status muda)
 const concluidas = computed(() => projeto.value?.tarefas.filter((t) => t.status === 'concluida').length ?? 0)
@@ -77,6 +79,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
           :key="t.id"
           :tarefa="t"
           @mudar-status="(id, novo) => mudarStatus(projeto!.tarefas, id, novo)"
+          @excluir="(tarefa) => excluir(tarefa, projeto!.tarefas)"
         />
       </div>
     </template>

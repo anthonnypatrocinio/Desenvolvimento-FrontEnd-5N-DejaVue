@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { buscarProjeto, buscarTarefa } from '../api'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
 import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import { useCarregar } from '../composables/useCarregar'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa'
 import { ehNaoEncontrado, mensagemDeErro } from '../erros'
 import type { Prioridade, Status } from '../tipos'
 
@@ -39,6 +41,17 @@ async function buscarDetalhe(id: string) {
 const { dados, carregando, erro, recarregar } = useCarregar(() => buscarDetalhe(props.id), () => props.id)
 const tarefa = computed(() => dados.value?.tarefa ?? null)
 const projeto = computed(() => dados.value?.projeto ?? null)
+const router = useRouter();
+const { excluir } = useExcluirTarefa();
+
+async function excluirEstaTarefa() {
+  if (!tarefa.value) return;
+
+  // só sai da tela se a tarefa foi mesmo excluída (não se a pessoa cancelou)
+  if (await excluir(tarefa.value)) {
+    await router.push('/');
+  }
+}
 </script>
 
 <template>
@@ -61,6 +74,7 @@ const projeto = computed(() => dados.value?.projeto ?? null)
           <h1>{{ tarefa.titulo }}</h1>
         </div>
         <RouterLink :to="`/tarefas/${tarefa.id}/editar`" class="botao botao--suave">Editar</RouterLink>
+        <button type="button" class="botao botao--perigo" @click="excluirEstaTarefa">Excluir</button>
       </header>
 
       <div class="chips">
@@ -90,6 +104,12 @@ const projeto = computed(() => dados.value?.projeto ?? null)
 </template>
 
 <style scoped>
+.acoes {  
+  display: flex;  
+  flex-wrap: wrap;  
+  gap: 0.8rem; 
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

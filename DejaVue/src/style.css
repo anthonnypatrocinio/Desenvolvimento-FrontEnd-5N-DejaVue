@@ -321,6 +321,21 @@ button:active:not(:disabled) {
 .botao--destaque:hover {
   background: var(--mt-verde);
 }
+.botao--perigo {
+  border-color: var(--vermelho);
+  background: var(--papel);
+  color: var(--vermelho);
+  box-shadow: 3px 3px 0 var(--vermelho);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--vermelho) 10%, var(--papel));
+  box-shadow: 6px 6px 0 var(--vermelho);
+}
+
+.botao--suave {
+  background: var(--papel);
+}
 .botao--suave {
   background: var(--papel);
 }
