@@ -41,12 +41,12 @@ export const buscarProjetoComTarefas = (id: string) =>
 
 export const criarTarefa = (dados: NovaTarefa) =>
  enviar<Tarefa>('POST', '/tarefas', dados)
-export const atualizarTarefa = (id: string, dados: Partial<NovaTarefa>) => 
- enviar<Tarefa>('PATCH', `/tarefas/${id}`, dados);
+export const atualizarTarefa = (id: string, dados: Partial<NovaTarefa>) =>
+ enviar<Tarefa>('PATCH', `/tarefas/${id}`, dados)
 // DELETE /tarefas/:id (o json-server responde 200 e apaga o registro)
-export const excluirTarefa = (id: Tarefa['id']) => 
- requisicao<unknown>(`/tarefas/${id}`, { method: 'DELETE' });
-export const criarProjeto = (dados: NovoProjeto) => 
- enviar<Projeto>('POST', '/projetos', dados);
+export const excluirTarefa = (id: Tarefa['id']) =>
+ requisicao<unknown>(`/tarefas/${id}`, { method: 'DELETE' })
+export const criarProjeto = (dados: NovoProjeto) =>
+ enviar<Projeto>('POST', '/projetos', dados)
 export const atualizarProjeto = (id: string, dados: Partial<NovoProjeto>) =>
  enviar<Projeto>('PATCH', `/projetos/${id}`, dados)
