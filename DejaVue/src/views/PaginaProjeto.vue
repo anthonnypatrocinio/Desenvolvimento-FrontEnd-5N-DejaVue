@@ -6,6 +6,14 @@ import EstadoErro from '../components/EstadoErro.vue'
 import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { buscarProjetoComTarefas } from '../api.ts'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
+import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar.ts'
 import { ehNaoEncontrado, mensagemDeErro } from '../erros.ts'
 import { useExcluirTarefa } from '../composables/useExcluirTarefa'
@@ -54,7 +62,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
       <p class="meta">Criado em {{ formatarData(projeto.criadoEm) }}</p>
 
       <div class="progresso" role="group" aria-label="Progresso do projeto">
-        <div class="trilho" role="progressbar" :aria-valuenow="percentual" aria-valuemin="0" aria-valuemax="100">
+        <div class="trilho" role="progressbar" aria-label="Tarefas concluídas" :aria-valuenow="percentual" aria-valuemin="0" aria-valuemax="100">
           <div class="marca" :style="{ width: percentual + '%' }"></div>
         </div>
         <p><strong>{{ percentual }}%</strong> feito · {{ concluidas }} de {{ projeto.tarefas.length }} tarefas</p>

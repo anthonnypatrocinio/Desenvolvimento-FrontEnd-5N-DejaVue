@@ -57,6 +57,8 @@ function mudar(id: Tarefa['id'], novo: Status) {
         <button type="button" class="botao" @click="limparFiltros">Limpar filtros</button>
       </EstadoVazio>
       <div v-else class="lista">
+        <!-- o título dos cartões é h3: este h2 (só para leitor de tela) evita pular do h1 direto ao h3 -->
+        <h2 class="so-leitor">Suas tarefas</h2>
         <TarefaCard
           v-for="t in visiveis"
           :key="t.id"
