@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { listarProjetos } from '../api'
+import { listarProjetos } from '../api.ts'
 import EstadoCarregando from '../components/EstadoCarregando.vue'
 import EstadoErro from '../components/EstadoErro.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
-import { useCarregar } from '../composables/useCarregar'
-import { mensagemDeErro } from '../erros'
+import { useCarregar } from '../composables/useCarregar.ts'
+import { mensagemDeErro } from '../erros.ts'
 
 const { dados, carregando, erro, recarregar } = useCarregar(listarProjetos)
 const projetos = computed(() => dados.value ?? [])

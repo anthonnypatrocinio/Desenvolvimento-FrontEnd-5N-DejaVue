@@ -8,9 +8,9 @@ const props = defineProps<{ tarefa: Tarefa; arrastavel?: boolean }>()
 
 // O cartão não altera a prop: só avisa o pai, que grava e atualiza a lista.
 const emit = defineEmits<{
-  'mudar-status': [id: Tarefa['id'], status: Status];
-  excluir: [tarefa: Tarefa];
-}>();
+  'mudar-status': [id: Tarefa['id'], status: Status]
+  excluir: [tarefa: Tarefa]
+}>()
 
 function aoMudarStatus(evento: Event) {
   const novo = (evento.target as HTMLSelectElement).value as Status
@@ -91,8 +91,9 @@ const estilo = computed(() => ({
         <time :datetime="tarefa.prazo">{{ formatarPrazo(tarefa.prazo) }}</time>
       </span>
     </footer>
+
     <button type="button" class="excluir" @click="emit('excluir', tarefa)">
-        excluir<span class="so-leitor"> a tarefa {{ tarefa.titulo }}</span>
+      excluir<span class="so-leitor"> a tarefa {{ tarefa.titulo }}</span>
     </button>
   </article>
 </template>
@@ -307,6 +308,7 @@ const estilo = computed(() => ({
     transform: rotate(var(--giro));
   }
 }
+
 /* "excluir": link discreto, escrito à mão; o botão global é grande demais para o cartão */
 .excluir {
   align-self: flex-end;
@@ -320,7 +322,6 @@ const estilo = computed(() => ({
   text-decoration: underline wavy;
   text-underline-offset: 3px;
 }
-
 .excluir:hover:not(:disabled) {
   background: none;
   box-shadow: none;

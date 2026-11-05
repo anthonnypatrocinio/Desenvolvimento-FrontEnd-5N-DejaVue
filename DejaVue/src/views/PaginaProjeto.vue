@@ -6,17 +6,9 @@ import EstadoErro from '../components/EstadoErro.vue'
 import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
-<script setup lang="ts">
-import { computed } from 'vue'
-import { buscarProjetoComTarefas } from '../api.ts'
-import EstadoCarregando from '../components/EstadoCarregando.vue'
-import EstadoErro from '../components/EstadoErro.vue'
-import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
-import EstadoVazio from '../components/EstadoVazio.vue'
-import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar.ts'
 import { ehNaoEncontrado, mensagemDeErro } from '../erros.ts'
-import { useExcluirTarefa } from '../composables/useExcluirTarefa'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa.ts'
 import { useMudarStatus } from '../composables/useMudarStatus.ts'
 
 // O roteador entrega o :id da URL como prop (props: true)
@@ -24,7 +16,7 @@ const props = defineProps<{ id: string }>()
 // _embed=tarefas devolve o projeto já com as tarefas dele; refaz a busca se o :id mudar
 const { dados: projeto, carregando, erro, recarregar } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
 const { erroStatus, mudarStatus } = useMudarStatus()
-const { excluir } = useExcluirTarefa()
+const { erroExcluir, excluir } = useExcluirTarefa()
 
 // Progresso = tarefas concluídas / total (recalcula sozinho quando um status muda)
 const concluidas = computed(() => projeto.value?.tarefas.filter((t) => t.status === 'concluida').length ?? 0)
@@ -76,6 +68,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
       </div>
 
       <p v-if="erroStatus" role="alert">{{ erroStatus }}</p>
+      <p v-if="erroExcluir" role="alert">{{ erroExcluir }}</p>
       <EstadoVazio v-if="projeto.tarefas.length === 0" mensagem="Este projeto ainda não tem tarefas.">
         <RouterLink :to="{ path: '/tarefas/nova', query: { projetoId: projeto.id } }" class="botao botao--destaque">
           Nova tarefa neste projeto
