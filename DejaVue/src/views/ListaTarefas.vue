@@ -9,6 +9,7 @@ import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 import type { Status, Tarefa } from '../tipos'
@@ -17,6 +18,7 @@ import type { Status, Tarefa } from '../tipos'
 const { dados: tarefas, carregando, erro, recarregar } = useCarregar(listarTarefas)
 const { aplicarFiltros, limparFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
+const { excluir } = useExcluirTarefa()
 
 // Só as tarefas que passam pela busca e pelos filtros (a lista original não muda)
 const visiveis = computed(() => aplicarFiltros(tarefas.value ?? []))
@@ -55,7 +57,13 @@ function mudar(id: Tarefa['id'], novo: Status) {
         <button type="button" class="botao" @click="limparFiltros">Limpar filtros</button>
       </EstadoVazio>
       <div v-else class="lista">
-        <TarefaCard v-for="t in visiveis" :key="t.id" :tarefa="t" @mudar-status="mudar" />
+        <TarefaCard
+          v-for="t in visiveis"
+          :key="t.id"
+          :tarefa="t"
+          @mudar-status="mudar"
+          @excluir="(tarefa) => excluir(tarefa, tarefas!)"
+        />
       </div>
     </template>
   </section>
