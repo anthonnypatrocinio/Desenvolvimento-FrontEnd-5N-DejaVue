@@ -9,6 +9,7 @@ import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar'
 import { mensagemDeErro } from '../erros'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa'
 import { useFiltros } from '../composables/useFiltros'
 import { useMudarStatus } from '../composables/useMudarStatus'
 import { opcoesStatus, rotuloStatus } from '../rotulos'
@@ -41,6 +42,7 @@ function soltar(evento: DragEvent, destino: Status) {
 }
 const { aplicarFiltros, limparFiltros } = useFiltros()
 const { erroStatus, mudarStatus } = useMudarStatus()
+const { excluir } = useExcluirTarefa()
 
 function mudar(id: Tarefa['id'], novo: Status) {
   if (tarefas.value) mudarStatus(tarefas.value, id, novo)
@@ -108,6 +110,7 @@ const semResultado = computed(() => total.value > 0 && colunas.value.every((c) =
           :tarefa="t"
           arrastavel
           @mudar-status="mudar"
+          @excluir="(tarefa) => excluir(tarefa, tarefas!)"
         />
       </section>
     </div>

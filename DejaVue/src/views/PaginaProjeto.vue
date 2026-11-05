@@ -6,8 +6,17 @@ import EstadoErro from '../components/EstadoErro.vue'
 import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
 import EstadoVazio from '../components/EstadoVazio.vue'
 import TarefaCard from '../components/TarefaCard.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { buscarProjetoComTarefas } from '../api.ts'
+import EstadoCarregando from '../components/EstadoCarregando.vue'
+import EstadoErro from '../components/EstadoErro.vue'
+import EstadoNaoEncontrado from '../components/EstadoNaoEncontrado.vue'
+import EstadoVazio from '../components/EstadoVazio.vue'
+import TarefaCard from '../components/TarefaCard.vue'
 import { useCarregar } from '../composables/useCarregar.ts'
 import { ehNaoEncontrado, mensagemDeErro } from '../erros.ts'
+import { useExcluirTarefa } from '../composables/useExcluirTarefa'
 import { useMudarStatus } from '../composables/useMudarStatus.ts'
 
 // O roteador entrega o :id da URL como prop (props: true)
@@ -15,6 +24,7 @@ const props = defineProps<{ id: string }>()
 // _embed=tarefas devolve o projeto já com as tarefas dele; refaz a busca se o :id mudar
 const { dados: projeto, carregando, erro, recarregar } = useCarregar(() => buscarProjetoComTarefas(props.id), () => props.id)
 const { erroStatus, mudarStatus } = useMudarStatus()
+const { excluir } = useExcluirTarefa()
 
 // Progresso = tarefas concluídas / total (recalcula sozinho quando um status muda)
 const concluidas = computed(() => projeto.value?.tarefas.filter((t) => t.status === 'concluida').length ?? 0)
@@ -52,7 +62,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
       <p class="meta">Criado em {{ formatarData(projeto.criadoEm) }}</p>
 
       <div class="progresso" role="group" aria-label="Progresso do projeto">
-        <div class="trilho" role="progressbar" :aria-valuenow="percentual" aria-valuemin="0" aria-valuemax="100">
+        <div class="trilho" role="progressbar" aria-label="Tarefas concluídas" :aria-valuenow="percentual" aria-valuemin="0" aria-valuemax="100">
           <div class="marca" :style="{ width: percentual + '%' }"></div>
         </div>
         <p><strong>{{ percentual }}%</strong> feito · {{ concluidas }} de {{ projeto.tarefas.length }} tarefas</p>
@@ -77,6 +87,7 @@ const formatarData = (data: string) => data.split('-').reverse().join('/')
           :key="t.id"
           :tarefa="t"
           @mudar-status="(id, novo) => mudarStatus(projeto!.tarefas, id, novo)"
+          @excluir="(tarefa) => excluir(tarefa, projeto!.tarefas)"
         />
       </div>
     </template>

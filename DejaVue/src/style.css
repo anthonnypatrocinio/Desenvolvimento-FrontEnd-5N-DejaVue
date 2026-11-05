@@ -4,7 +4,6 @@
    caneta azul, marca-texto, carimbo e uma luz de abajur que segue o mouse.
    1) fontes  2) tokens  3) base  4) caderno e mesa  5) peças reutilizáveis
    ============================================================ */
-
 /* 1) Fontes (pacotes npm: funcionam sem internet) */
 @import '@fontsource-variable/caveat';
 @import '@fontsource/patrick-hand';
@@ -17,7 +16,6 @@
   --f-mao: 'Patrick Hand', 'Segoe Print', cursive; /* texto escrito à mão */
   --f-maquina: 'Special Elite', 'Courier New', monospace; /* etiquetas datilografadas */
   --f-marca: 'Permanent Marker', 'Segoe Print', cursive; /* carimbo e marcador grosso */
-
   --mesa: #2b5a4d;
   --mesa-linha: rgba(255, 255, 255, 0.06);
   --papel: #fcf8ea;
@@ -27,40 +25,34 @@
   --lapis: #3b3b46;
   --suave: #6d7186;
   --vermelho: #d23a3a; /* caneta vermelha */
-
   --mt-amarelo: #fff07a;
   --mt-verde: #b6f0c6;
   --mt-rosa: #ffc2dc;
   --mt-azul: #aad9ff;
   --mt-laranja: #ffd29c;
-
   /* cor do post-it por status */
   --nota-a-fazer: #fff59d;
   --nota-em-andamento: #ffcf8f;
   --nota-em-revisao: #d6c7ff;
   --nota-concluida: #b7ecd1;
-  /* cor do texto de cada status (mais escura, para ler sobre o papel) */
-  --st-a-fazer: #8a6a00;
-  --st-em-andamento: #c2570c;
+  /* cor do texto de cada status (mais escura, para ler sobre o papel) - M537 (WCAG > 4.5:1) */
+  --st-a-fazer: #735800;
+  --st-em-andamento: #a64605;
   --st-em-revisao: #5a3fbf;
-  --st-concluida: #1c7f4b;
+  --st-concluida: #146c3e;
   --pr-baixa: #2a6fb5;
-  --pr-media: #c2570c;
+  --pr-media: #a64605;
   --pr-alta: #c62828;
-
   /* borda "desenhada à mão": cantos desiguais */
   --rabisco: 255px 14px 225px 14px / 14px 225px 14px 255px;
   --rabisco-2: 14px 225px 14px 255px / 255px 14px 225px 14px;
   --sombra-nota: 0 1px 1px rgba(0, 0, 0, 0.12), 0 10px 14px -8px rgba(0, 0, 0, 0.35);
   --largura: 1320px;
-
   /* posição do mouse (0 a 1), atualizada por FundoMesa.vue */
   --mx: 0.5;
   --my: 0.3;
-
   color-scheme: light;
 }
-
 @media (prefers-color-scheme: dark) {
   :root {
     --mesa: #12262a; /* a mesa escurece; o papel continua papel */
@@ -74,25 +66,21 @@
 *::after {
   box-sizing: border-box;
 }
-
 html {
   font: 19px/1.5 var(--f-mao);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
 }
-
 body {
   margin: 0;
   min-height: 100svh;
   color: var(--lapis);
   background: var(--mesa);
 }
-
 #app {
   position: relative;
   min-height: 100svh;
 }
-
 h1,
 h2,
 h3 {
@@ -114,7 +102,6 @@ h3 {
 p {
   margin: 0;
 }
-
 a {
   color: var(--tinta);
   text-decoration: underline wavy color-mix(in srgb, var(--tinta) 45%, transparent);
@@ -124,18 +111,15 @@ a {
 a:hover {
   background: var(--mt-amarelo);
 }
-
 :focus-visible {
   outline: 3px dashed var(--vermelho);
   outline-offset: 3px;
 }
-
 code {
   padding: 0 0.3em;
   font-family: var(--f-maquina);
   background: var(--mt-amarelo);
 }
-
 .so-leitor {
   position: absolute;
   width: 1px;
@@ -152,7 +136,6 @@ code {
   margin: 0 auto;
   padding: 0 1rem 4rem;
 }
-
 .caderno {
   position: relative;
   margin-top: 0;
@@ -172,7 +155,6 @@ code {
     0 10px 0 #ddd5b8,
     0 30px 50px -10px rgba(0, 0, 0, 0.55);
 }
-
 /* espiral de arame no topo + furos no papel */
 .espiral {
   position: absolute;
@@ -192,13 +174,11 @@ code {
   background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.35) 0 4px, transparent 5px) 0 0 / 30px 14px repeat-x;
   z-index: -1;
 }
-
 .pagina {
   position: relative;
   padding: 3.4rem 2rem 4rem 5.2rem;
   min-height: 70vh;
 }
-
 @media (max-width: 720px) {
   .caderno {
     background:
@@ -211,7 +191,6 @@ code {
     padding: 3rem 0.9rem 3rem 1.7rem;
   }
 }
-
 /* virar a página ao trocar de rota */
 .folha-leave-active,
 .folha-enter-active {
@@ -235,7 +214,6 @@ code {
 }
 
 /* 5) Peças reutilizáveis */
-
 /* título "escrito" da esquerda para a direita, com rabisco embaixo */
 .pagina h1 {
   display: inline-block;
@@ -258,7 +236,6 @@ code {
     clip-path: inset(-10% -2% -10% 0);
   }
 }
-
 .pagina-topo {
   display: flex;
   flex-wrap: wrap;
@@ -281,7 +258,6 @@ code {
   color: var(--lapis);
   transform: rotate(-2deg);
 }
-
 /* botões: caneta sobre papel, com "sombra de adesivo" */
 .botao,
 button {
@@ -321,6 +297,16 @@ button:active:not(:disabled) {
 .botao--destaque:hover {
   background: var(--mt-verde);
 }
+.botao--perigo {
+  border-color: var(--vermelho);
+  background: var(--papel);
+  color: var(--vermelho);
+  box-shadow: 3px 3px 0 var(--vermelho);
+}
+.botao--perigo:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--vermelho) 10%, var(--papel));
+  box-shadow: 6px 6px 0 var(--vermelho);
+}
 .botao--suave {
   background: var(--papel);
 }
@@ -331,7 +317,6 @@ button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
-
 /* "← voltar" */
 .voltar {
   display: block;
@@ -348,7 +333,6 @@ button:disabled {
   color: var(--tinta);
   transform: translateX(-5px);
 }
-
 /* campos: espaços para preencher, como numa ficha de papel */
 label {
   font: 0.8rem/1.4 var(--f-maquina);
@@ -379,10 +363,11 @@ textarea {
 input::placeholder {
   color: color-mix(in srgb, var(--tinta) 40%, transparent);
 }
-input:focus,
+/* M537: Foco visível com outline tracejado em vermelho */
 select:focus,
 textarea:focus {
-  outline: none;
+  outline: 3px dashed var(--vermelho);
+  outline-offset: 2px;
   background: color-mix(in srgb, var(--mt-amarelo) 70%, transparent);
   border-color: var(--vermelho);
 }
@@ -402,7 +387,6 @@ select {
   background-repeat: no-repeat;
   background-position: right 0.3rem center;
 }
-
 /* etiquetas adesivas: status e prioridade */
 .chip {
   display: inline-block;
@@ -437,7 +421,6 @@ select {
 .chip[data-prioridade='alta'] {
   --cor: var(--pr-alta);
 }
-
 /* erros: recado escrito com caneta vermelha */
 [role='alert'] {
   margin: 0 0 1rem;
@@ -448,7 +431,6 @@ select {
   color: var(--vermelho);
   font-size: 1.15rem;
 }
-
 /* mesa de post-its */
 .lista {
   display: grid;
@@ -456,7 +438,6 @@ select {
   grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
   padding: 0.5rem 0 1rem;
 }
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
