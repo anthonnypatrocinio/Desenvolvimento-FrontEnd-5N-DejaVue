@@ -1,0 +1,24 @@
+name: Build
+
+# Roda em todo pull request e em todo push na main.
+# Se o build falhar, o PR mostra um X vermelho antes de alguém mesclar.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: DejaVue # o projeto fica dentro da pasta DejaVue
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: DejaVue/package-lock.json
+      - run: npm ci # instala exatamente o que está no package-lock.json
+      - run: npm run build # vue-tsc (confere os tipos) + vite build
