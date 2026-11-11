@@ -1,15 +1,28 @@
 <script setup lang="ts">
+import { onBeforeUnmount, ref } from 'vue'
+
 // Aviso de "carregando". Aparece enquanto a API não responde.
 defineProps<{ mensagem?: string }>()
+
+// A API gratuita "dorme" depois de 15 minutos sem uso e leva até 1 minuto para acordar.
+// Se a espera passar de 6 segundos, explicamos o motivo em vez de deixar a pessoa sem saber.
+const demorando = ref(false)
+const aviso = setTimeout(() => (demorando.value = true), 6000)
+onBeforeUnmount(() => clearTimeout(aviso)) // a tela fechou antes: cancela o aviso
 </script>
 
 <template>
   <!-- role="status": o leitor de tela avisa a mudança, sem interromper quem está lendo -->
   <div class="carregando" role="status" aria-live="polite">
     <span class="lapis" aria-hidden="true">✎</span>
-    <p>
-      {{ mensagem ?? 'Folheando o caderno' }}<span class="pontos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
-    </p>
+    <div>
+      <p>
+        {{ mensagem ?? 'Folheando o caderno' }}<span class="pontos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
+      </p>
+      <p v-if="demorando" class="aviso-demora">
+        A primeira visita pode levar até 1 minuto: a API gratuita dorme quando fica parada e precisa acordar.
+      </p>
+    </div>
   </div>
 </template>
 
@@ -25,6 +38,13 @@ defineProps<{ mensagem?: string }>()
 }
 .carregando p {
   margin: 0;
+}
+.aviso-demora {
+  margin-top: 0.4rem;
+  font-family: var(--f-maquina);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: var(--tinta);
 }
 .lapis {
   display: inline-block;
