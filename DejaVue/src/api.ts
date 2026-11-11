@@ -1,6 +1,9 @@
 import type { NovaTarefa, Projeto, Tarefa } from './tipos'
 
-const API = 'http://localhost:3000'
+// O endereço da API vem do ambiente: .env.development (npm run dev) e
+// .env.production (npm run build). Tirar a URL do código permite usar outra API sem editar o código.
+// replace remove a(s) barra(s) do fim, para `${API}/tarefas` não virar `//tarefas`.
+const API = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 
 // Erro de uma resposta HTTP que não deu certo. Guarda o `status` (404, 500...)
 // para a tela diferenciar "não existe" de "o servidor falhou".
@@ -17,6 +20,7 @@ export type ProjetoComTarefas = Projeto & { tarefas: Tarefa[] }
 export type NovoProjeto = Omit<Projeto, 'id'>
 
 async function requisicao<T>(caminho: string, opcoes?: RequestInit): Promise<T> {
+  if (!API) throw new Error('VITE_API_URL não está definida (veja os arquivos .env)')
   const resposta = await fetch(`${API}${caminho}`, opcoes)
   if (!resposta.ok) throw new ErroHttp(resposta.status)
   return resposta.json() as Promise<T>
