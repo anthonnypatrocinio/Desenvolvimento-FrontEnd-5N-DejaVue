@@ -13,9 +13,9 @@ export function mensagemDeErro(erro: unknown, acao: string): string {
     return `Não foi possível ${acao}: o servidor respondeu com o erro ${erro.status}.`
   }
   // fetch rejeita com TypeError quando a requisição nem chega ao servidor
-  // (json-server desligado, sem internet)
+  // (API desligada ou dormindo, sem internet)
   if (erro instanceof TypeError) {
-    return `Não foi possível ${acao}. Verifique se o json-server está rodando e tente de novo.`
+    return `Não foi possível ${acao}. Verifique sua conexão e se a API está no ar, e tente de novo.`
   }
   return `Aconteceu um erro inesperado ao tentar ${acao}.`
 }
