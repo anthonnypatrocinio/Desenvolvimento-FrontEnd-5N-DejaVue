@@ -17,7 +17,7 @@ Vue 3 com TypeScript, criado com Vite. A API local usa o json-server.
 
 ## Aplicação publicada
 
-- **Aplicação:** https://dejavue.vercel.app
+- **Aplicação:** https://dejavue-des-front-end.vercel.app
 - **API (json-server hospedado):** https://dejavue-api.onrender.com/projetos
 
 > A API usa um plano gratuito que "dorme" depois de 15 minutos sem uso. Na primeira visita, a lista pode levar até 1 minuto para aparecer. Quando a API reinicia, os dados voltam ao exemplo (`db.seed.json`).
