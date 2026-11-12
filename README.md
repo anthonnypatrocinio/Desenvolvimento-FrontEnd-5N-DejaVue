@@ -15,6 +15,13 @@
 
 Vue 3 com TypeScript, criado com Vite. A API local usa o json-server.
 
+## Aplicação publicada
+
+- **Aplicação:** https://dejavue.vercel.app
+- **API (json-server hospedado):** https://dejavue-api.onrender.com/projetos
+
+> A API usa um plano gratuito que "dorme" depois de 15 minutos sem uso. Na primeira visita, a lista pode levar até 1 minuto para aparecer. Quando a API reinicia, os dados voltam ao exemplo (`db.seed.json`).
+
 ## Como rodar
 
 Requisitos: Node.js 24 ou superior (`node -v`) e Git (`git --version`).
@@ -54,6 +61,20 @@ Na pasta `DejaVue`:
 - `db.json`: dados da API local (o json-server grava nele).
 - `db.seed.json`: cópia original. Para voltar aos dados iniciais, copie-o por cima do `db.json`.
 - `src/tipos.ts`: tipos `Projeto` e `Tarefa` (contrato de dados da disciplina).
+
+## Publicação
+
+| Parte | Onde | Como |
+| --- | --- | --- |
+| Aplicação (Vue + Vite) | Vercel, plano Hobby (gratuito) | A cada push na `main`, a Vercel roda `npm run build` e publica a pasta `dist` |
+| API (json-server) | Render, plano Free | `npx json-server@1.0.0-beta.15 db.seed.json --host 0.0.0.0 --port $PORT` |
+
+O endereço da API fica em variável de ambiente, não no código:
+
+- `DejaVue/.env.development`: `VITE_API_URL=http://localhost:3000` (usado por `npm run dev`)
+- `DejaVue/.env.production`: `VITE_API_URL=https://dejavue-api.onrender.com` (usado por `npm run build`)
+
+Para testar o build no seu computador, na pasta `DejaVue`: `npm run build` e depois `npm run preview` (http://localhost:4173).
 
 ## Como trabalhar em equipe
 
